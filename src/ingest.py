@@ -67,7 +67,7 @@ def create_vector_store(chunks, embeddings):
         vector_store = PGVector.from_documents(
             documents=chunks,
             embedding=embeddings,
-            connection_string=DATABASE_URL,
+            connection=DATABASE_URL,
             collection_name=PG_VECTOR_COLLECTION_NAME,
             pre_delete_collection=True
         )

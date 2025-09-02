@@ -87,8 +87,8 @@ def get_vector_store():
         embeddings = get_embeddings()
         
         vector_store = PGVector(
-            connection_string=DATABASE_URL,
-            embedding_function=embeddings,
+            connection=DATABASE_URL,
+            embeddings=embeddings,
             collection_name=PG_VECTOR_COLLECTION_NAME
         )
         
@@ -114,10 +114,9 @@ def search_prompt(question=None):
             llm=llm,
             chain_type="stuff",
             retriever=vector_store.as_retriever(
-                search_type="similarity_score_threshold",
+                search_type="similarity",
                 search_kwargs={
-                    "k": 10,
-                    "score_threshold": 0.7
+                    "k": 10
                 }
             ),
             chain_type_kwargs={"prompt": prompt},

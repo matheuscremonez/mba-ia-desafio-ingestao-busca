@@ -10,7 +10,7 @@ def print_header():
     print("CHAT COM PDF - Sistema de Busca Inteligente")
     print("=" * 60)
     print("Faça perguntas baseadas no PDF carregado!")
-    print("Digite 'sair', 'quit' ou 'exit' para encerrar")
+    print("Digite 'quit' para encerrar")
     print("Digite 'help' para ver comandos disponíveis")
     print("-" * 60)
 
@@ -20,9 +20,7 @@ def print_help():
     print("=" * 40)
     print("help      - Mostra esta ajuda")
     print("clear     - Limpa a tela")
-    print("sair      - Encerra o chat")
     print("quit      - Encerra o chat")
-    print("exit      - Encerra o chat")
     print("-" * 40)
     print("Para fazer perguntas, apenas digite sua pergunta!")
     print("=" * 40 + "\n")
@@ -104,7 +102,7 @@ def main():
         try:
             user_input = input("Você: ").strip()
             
-            if user_input.lower() in ['sair', 'quit', 'exit']:
+            if user_input.lower() == 'quit':
                 print("\nAté logo! Obrigado por usar o sistema.")
                 break
             
