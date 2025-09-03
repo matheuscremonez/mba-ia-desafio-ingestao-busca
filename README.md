@@ -1,6 +1,6 @@
 # Sistema de Ingestão e Busca Inteligente de PDF
 
-Sistema completo para processar documentos PDF e permitir busca conversacional baseada em IA.
+Sistema para processar documentos PDF e permitir busca conversacional baseada em IA.
 
 ## **Como Executar a Solução**
 
