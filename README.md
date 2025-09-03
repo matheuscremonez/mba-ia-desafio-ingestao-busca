@@ -28,7 +28,9 @@ GOOGLE_API_KEY=your-google-api-key-here
 OPENAI_API_KEY=sk-your-openai-api-key-here
 
 # Banco de dados (padrão funciona com docker-compose)
-POSTGRES_CONNECTION_STRING=postgresql://postgres:postgres@localhost:5432/rag
+DATABASE_URL=postgresql://postgres:postgres@localhost:5432/rag
+
+# O restante das variáveis necessárias, utilizar como está no example já preenchido.
 ```
 
 3. **Inicie o PostgreSQL com pgVector:**
@@ -88,7 +90,7 @@ PDF → Ingestão → PostgreSQL →   Busca →   Resposta
 
 - `help` - Mostra comandos disponíveis
 - `clear` - Limpa a tela  
-- `sair/quit/exit` - Encerra o chat
+- `quit` - Encerra o chat
 - **Qualquer pergunta** - Busca no PDF e responde
 
 ## **Exemplo de Uso**
@@ -100,10 +102,9 @@ $ python src/chat.py
 CHAT COM PDF - Sistema de Busca Inteligente
 ============================================================
 Faça perguntas baseadas no PDF carregado!
-Digite 'sair', 'quit' ou 'exit' para encerrar
+Digite 'quit' para encerrar
 Digite 'help' para ver comandos disponíveis
 ------------------------------------------------------------
-
 Sistema configurado corretamente!
 Encontrados documentos no banco de dados
 Usando Google Gemini (models/embedding-001 + gemini-2.5-flash-lite)
