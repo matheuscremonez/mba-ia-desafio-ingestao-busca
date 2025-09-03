@@ -6,6 +6,7 @@ from langchain_postgres import PGVector
 from langchain.prompts import PromptTemplate
 from langchain.chains import RetrievalQA
 import logging
+import re
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -31,6 +32,16 @@ REGRAS:
   "Não tenho informações necessárias para responder sua pergunta."
 - Nunca invente ou use conhecimento externo.
 - Nunca produza opiniões ou interpretações além do que está escrito.
+
+EXEMPLOS DE RESPOSTAS QUANDO A INFORMAÇÃO ESTÁ DISPONÍVEL:
+Pergunta: "Qual o faturamento da empresa SuperTechIABrazil?"
+Resposta: "O faturamento foi de 10 milhões de reais."
+
+Pergunta: "Quantos funcionários a empresa tem?"
+Resposta: "A empresa possui 150 funcionários."
+
+Pergunta: "Qual é o endereço da sede?"
+Resposta: "A sede fica localizada na Rua das Flores, 123, São Paulo."
 
 EXEMPLOS DE PERGUNTAS FORA DO CONTEXTO:
 Pergunta: "Qual é a capital da França?"
@@ -99,7 +110,46 @@ def get_vector_store():
         logger.error(f"Erro ao conectar com vector store: {e}")
         raise
 
-def search_prompt(question=None):
+def optimize_query_for_search(question: str) -> str:
+    company_patterns = [
+        r'\b[A-Z][a-z]*[A-Z][A-Za-z]*\b',  # CamelCase (ex: SuperTechIABrazil)
+        r'\b[A-Z][a-zA-Z]*(?:\s+[A-Z][a-zA-Z]*){1,3}(?:\s+(?:S\.A\.|LTDA|ME|EPP|Holding|Comércio|Serviços|Indústria))?\b',  # Nomes de empresas
+        r'\b[A-Z][a-z]+(?:[A-Z][a-z]+)*(?:IA|Tech|Bio|Eco|Agro)\w*\b',  # Padrões tecnológicos
+    ]
+    
+    company_names = []
+    for pattern in company_patterns:
+        matches = re.findall(pattern, question)
+        company_names.extend(matches)
+
+    company_names = list(dict.fromkeys(company_names))
+
+    business_terms = [
+        'faturamento', 'receita', 'lucro', 'vendas', 'resultado',
+        'valor', 'montante', 'quantia', 'total', 'financeiro'
+    ]
+    
+    important_terms = []
+    question_lower = question.lower()
+    for term in business_terms:
+        if term in question_lower:
+            important_terms.append(term)
+
+    if company_names:
+        main_company = company_names[0]
+        if important_terms:
+            optimized_query = f"{main_company} {important_terms[0]}"
+        else:
+            optimized_query = main_company
+        
+        logger.info(f"Query otimizada: '{question}' -> '{optimized_query}'")
+        logger.info(f"Empresa detectada: {main_company}")
+        return optimized_query
+    else:
+        logger.info(f"Nenhuma empresa detectada, usando query original: '{question}'")
+        return question
+
+def search_prompt():
     try:
         vector_store = get_vector_store()
         
@@ -133,13 +183,15 @@ def search_prompt(question=None):
 def search_and_answer(question: str):
     try:
         logger.info(f"Processando pergunta: {question}")
+
+        optimized_query = optimize_query_for_search(question)
         
         qa_chain = search_prompt()
         
         if not qa_chain:
             return "Erro: Não foi possível inicializar o sistema de busca."
-        
-        result = qa_chain.invoke({"query": question})
+
+        result = qa_chain.invoke({"query": optimized_query})
         
         answer = result["result"]
         sources = result.get("source_documents", [])
